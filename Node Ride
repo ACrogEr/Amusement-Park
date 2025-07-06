@@ -1,0 +1,35 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class NodeRide {
+public:
+    string name;
+    int ageLimit;
+    int activity;
+
+    // Default constructor
+    NodeRide() {
+        name = "";
+        ageLimit = 0;
+        activity = 1;  // By default, ride is active
+    }
+
+    // Parameterized constructor
+    NodeRide(string n, int age, int a) {
+        name = n;
+        ageLimit = age;
+        activity = a;
+    }
+
+    // Function to accept details of ride
+    void accept() {
+        cout << "Enter Ride Name: ";           // Accept name of ride
+        getline(cin >> ws, name);             // Accepting full line including spaces
+        cout << "Enter Age limit for ride: ";  // Accept age limit of ride
+        cin >> ageLimit;
+        cout << "Activity status(1/0): ";      // Accept status of ride whether it's active or inactive
+        cin >> activity;
+        cout << "\n";
+    }
+};
