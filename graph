@@ -1,0 +1,305 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <climits>
+using namespace std;
+
+class NodeRide {
+public:
+    string name;
+    int ageLimit;
+    int activity;
+
+    void accept() {
+        cout << "Enter Ride Name: ";
+        cin >> name;
+        cout << "Enter Age Limit: ";
+        cin >> ageLimit;
+        cout << "Enter Activity Status (1 for Active, 0 for Inactive): ";
+        cin >> activity;
+    }
+};
+
+class Graph {
+    int Ride_no;
+    int noEdge;
+    int mat[20][20];
+    NodeRide Array[20];
+
+public:
+    Graph() {
+        Ride_no = 0;
+        noEdge = 0;
+        for (int i = 0; i < 20; i++)
+            for (int j = 0; j < 20; j++)
+                mat[i][j] = 0;
+    }
+
+    void addEdge() {
+        int i, d, w;
+        cout << "enter source ride id: ";
+        cin >> i;
+        cout << "enter destination ride id: ";
+        cin >> d;
+        cout << "Enter distance between two rides in metres: ";
+        cin >> w;
+        mat[i][d] = w;
+        mat[d][i] = w;
+    }
+
+    void createMat() {
+        cout << "Enter number of rides= ";
+        cin >> Ride_no;
+        for (int i = 0; i < Ride_no; i++) {
+            Array[i].accept();
+        }
+
+        cout << "Enter number of edges= ";
+        cin >> noEdge;
+
+        for (int i = 0; i < noEdge; i++) {
+            int data1, data2, dist;
+            cout << "Enter ride ID across edge " << (i + 1) << " = ";
+            cin >> data1 >> data2;
+            cout << "Enter distance between 2 rides: ";
+            cin >> dist;
+            mat[data1][data2] = dist;
+            mat[data2][data1] = dist;
+        }
+
+        for (int i = 0; i < Ride_no; i++)
+            mat[i][i] = 0;
+    }
+
+    void displayMat() {
+        cout << "\t";
+        for (int i = 0; i < Ride_no; i++)
+            cout << "\thouse" << i << "\t";
+        cout << endl;
+        for (int i = 0; i < Ride_no; i++) {
+            cout << "house" << i << "\t";
+            for (int j = 0; j < Ride_no; j++) {
+                cout << "\t" << mat[i][j] << "\t";
+            }
+            cout << endl;
+        }
+        cout << "\n_____________________________________________\n";
+    }
+
+    void addRide() {
+        Array[Ride_no].accept();
+        Ride_no++;
+        int data1, data2, dist;
+        cout << "Enter ride ID across edge " << (noEdge + 1) << " = ";
+        cin >> data1 >> data2;
+        cout << "Enter distance between 2 rides: ";
+        cin >> dist;
+        if (dist != 0) noEdge++;
+        mat[data1][data2] = dist;
+        mat[data2][data1] = dist;
+        for (int i = 0; i < Ride_no; i++)
+            mat[i][i] = 0;
+    }
+
+    void printallrides() {
+        cout << "Ride Name\t\tRideID\t\tAge Limit\n\n";
+        for (int i = 0; i < Ride_no; i++) {
+            cout << " " << Array[i].name << "\t\t" << i << "\t\t" << Array[i].ageLimit << "\n";
+        }
+        cout << "------------------------------------------------------\n";
+    }
+
+    bool dfs_recursive(vector<bool>& visited, int start, int dest) {
+        if (start == dest) {
+            visited[start] = true;
+            return true;
+        }
+        visited[start] = true;
+        for (int i = 0; i < Ride_no; i++) {
+            if (mat[start][i] != 0 && !visited[i]) {
+                if (dfs_recursive(visited, i, dest))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    void hasPath_check() {
+        int src = -1, dest = -1;
+        string s, d;
+        cout << "Enter present ride name: ";
+        cin >> s;
+        cout << "Enter ride you are searching for: ";
+        cin >> d;
+        for (int i = 0; i < Ride_no; i++) {
+            if (s == Array[i].name) src = i;
+            if (d == Array[i].name) dest = i;
+        }
+        hasPath(src, dest);
+    }
+
+    void hasPath(int src, int dest) {
+        vector<bool> visited(Ride_no, false);
+        if (dfs_recursive(visited, src, dest))
+            cout << "Ride is in your block!\n";
+        else
+            cout << "Sorry!! Ride is in other block\n";
+    }
+
+    void print_list_age() {
+        int flag1 = 0, flag2 = 0;
+        cout << "Kids Rides are:\n";
+        for (int i = 0; i < Ride_no; i++) {
+            if (Array[i].ageLimit < 18) {
+                cout << Array[i].name << endl;
+                flag1++;
+            }
+        }
+        cout << "Total Kids Rides are: " << flag1 << endl;
+        cout << "Adult Rides are:\n";
+        for (int i = 0; i < Ride_no; i++) {
+            if (Array[i].ageLimit > 18) {
+                cout << Array[i].name << endl;
+                flag2++;
+            }
+        }
+        cout << "Total Adult Rides are: " << flag2 << endl;
+    }
+
+    void print_list_activity() {
+        int flag1 = 0, flag2 = 0;
+        cout << "Active Rides List\n-------------------------\n";
+        for (int i = 0; i < Ride_no; i++) {
+            if (Array[i].activity == 1) {
+                cout << Array[i].name << endl;
+                flag1++;
+            }
+        }
+        if (flag1 == 0) cout << "No active rides\n";
+
+        cout << "\nINActive Rides List\n-------------------------\n";
+        for (int i = 0; i < Ride_no; i++) {
+            if (Array[i].activity == 0) {
+                cout << Array[i].name << endl;
+                flag2++;
+            }
+        }
+        if (flag2 == 0) cout << "No Inactive rides\n\n";
+    }
+
+    void dijkstra() {
+        int startVertex = -1, dest = -1;
+        string s, d;
+        cout << "Enter present ride name: ";
+        cin >> s;
+        cout << "Enter ride you are searching for: ";
+        cin >> d;
+        for (int i = 0; i < Ride_no; i++) {
+            if (s == Array[i].name) startVertex = i;
+            if (d == Array[i].name) dest = i;
+        }
+
+        vector<bool> visited(Ride_no, false);
+        if (!dfs_recursive(visited, startVertex, dest)) {
+            cout << "The two rides are in different section\n\n";
+            return;
+        }
+
+        int shortestDistances[20], parents[20];
+        bool added[20] = {false};
+
+        for (int i = 0; i < Ride_no; i++) {
+            shortestDistances[i] = INT_MAX;
+            parents[i] = -1;
+        }
+
+        shortestDistances[startVertex] = 0;
+
+        for (int i = 0; i < Ride_no - 1; i++) {
+            int nearestVertex = -1, shortestDistance = INT_MAX;
+            for (int j = 0; j < Ride_no; j++) {
+                if (!added[j] && shortestDistances[j] < shortestDistance) {
+                    nearestVertex = j;
+                    shortestDistance = shortestDistances[j];
+                }
+            }
+            if (nearestVertex == -1) continue;
+            added[nearestVertex] = true;
+
+            for (int j = 0; j < Ride_no; j++) {
+                int edgeDistance = mat[nearestVertex][j];
+                if (edgeDistance > 0 && !added[j] &&
+                    shortestDistances[nearestVertex] + edgeDistance < shortestDistances[j]) {
+                    parents[j] = nearestVertex;
+                    shortestDistances[j] = shortestDistances[nearestVertex] + edgeDistance;
+                }
+            }
+        }
+
+        printSolution(startVertex, shortestDistances, parents, dest);
+    }
+
+    void printSolution(int startVertex, int distances[], int parents[], int dest) {
+        cout << "Locations\t Distance\tPath\n";
+        cout << startVertex << " -> " << dest << " \t\t ";
+        cout << distances[dest] << "\t\t";
+        printPath(dest, parents);
+        cout << "ARRIVED!\n\n";
+    }
+
+    void printPath(int currentVertex, int parents[]) {
+        if (currentVertex == -1)
+            return;
+        printPath(parents[currentVertex], parents);
+        cout << currentVertex << "->";
+    }
+
+    void getPaths() {
+        int src = -1, dest = -1;
+        string s, d;
+        cout << "Enter present ride name: ";
+        cin >> s;
+        cout << "Enter ride you are searching for: ";
+        cin >> d;
+        for (int i = 0; i < Ride_no; i++) {
+            if (s == Array[i].name) src = i;
+            if (d == Array[i].name) dest = i;
+        }
+
+        vector<bool> visited(Ride_no, false);
+        if (!dfs_recursive(visited, src, dest)) {
+            cout << "The two rides are in different section\n\n";
+            return;
+        }
+
+        vector<bool> isVisited(Ride_no, false);
+        vector<int> pathList;
+        pathList.push_back(src);
+
+        cout << "\nPaths (Mentioned numbers are ride numbers, follow in sequence left to right):\n";
+        printAllPathsUtil(src, dest, isVisited, pathList);
+    }
+
+    void printAllPathsUtil(int u, int d, vector<bool>& isVisited, vector<int>& localPathList) {
+        if (u == d) {
+            for (int node : localPathList) {
+                cout << node << " ";
+            }
+            cout << endl;
+            while (localPathList.size() > 1)
+                localPathList.pop_back();
+            return;
+        }
+
+        isVisited[u] = true;
+
+        for (int i = 0; i < Ride_no; i++) {
+            if (!isVisited[i] && mat[u][i] != 0) {
+                localPathList.push_back(i);
+                printAllPathsUtil(i, d, isVisited, localPathList);
+            }
+        }
+
+        isVisited[u] = false;
+    }
+};
